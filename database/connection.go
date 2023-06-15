@@ -28,6 +28,7 @@ type Manager interface {
 	GetSingleRecordByEmail(string, string) *types.Verification
 	UpdateVerification(types.Verification, string) error
 	UpdateEmailVerifiedStatus(types.Verification, string) error
+	GetSingleRecordByEmailForUser(string, string) types.User
 }
 
 func ConnectDb() {

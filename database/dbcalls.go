@@ -57,3 +57,14 @@ func (mgr *manager) UpdateEmailVerifiedStatus(req types.Verification, collection
 
 	return err
 }
+
+// Get single user from db
+func (mgr *manager) GetSingleRecordByEmailForUser(email, collectionName string) types.User {
+	resp := types.User{}
+	filter := bson.D{{"email", email}}
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+
+	_ = orgCollection.FindOne(context.TODO(), filter).Decode(&resp)
+	fmt.Println(resp)
+	return resp
+}

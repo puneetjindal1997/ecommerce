@@ -119,33 +119,55 @@ func VerifyOtp(c *gin.Context) {
 }
 
 /*
- *	resend otp if email exists
+ *	Controller related to user registeration
  *
  */
-func ResendOTPEmail(c *gin.Context) {
-	var req types.Verification
-	postBodyErr := c.BindJSON(&req)
-	if postBodyErr != nil {
-		log.Println(postBodyErr)
-		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": postBodyErr.Error()})
+func RegisterUser(c *gin.Context) {
+	var userClient types.UserClient
+	var dbUser types.User
+
+	// binding the payload
+	reqErr := c.BindJSON(&userClient)
+	if reqErr != nil {
+		log.Println(reqErr)
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": reqErr.Error()})
 		return
 	}
-	if req.Email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.EmailValidationError})
+	// payload error handle
+	err := helper.CheckUserValidation(userClient)
+	if err != nil {
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
 		return
 	}
-	resp := database.Mgr.GetSingleRecordByEmail(req.Email, constant.VerificationsCollection)
-	if resp.Email == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.EmailValidationError})
+	// check if email is verified
+	resp := database.Mgr.GetSingleRecordByEmail(userClient.Email, constant.VerificationsCollection)
+	if !resp.Status {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.EmailIsNotVerified})
 		return
 	}
-	req, checkEmail := helper.SendEmailSendGrid(req)
-	if checkEmail != nil {
-		log.Println(postBodyErr)
-		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.EmailValidationError})
+
+	// check for duplicate user
+	respUser := database.Mgr.GetSingleRecordByEmailForUser(userClient.Email, constant.UserCollection)
+	if respUser.Email != "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.AlreadyRegisterWithThisEmail})
 		return
 	}
-	req.CreatedAt = time.Now().Unix()
-	database.Mgr.UpdateVerification(req, constant.VerificationsCollection)
-	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success"})
+	dbUser.Email = userClient.Email
+	dbUser.Name = userClient.Name
+	dbUser.Phone = userClient.Phone
+	// encrypted password genration
+	encryptedPass := helper.GenPassHash(userClient.Password)
+	dbUser.Password = encryptedPass
+	dbUser.CreatedAt = time.Now().Unix()
+	dbUser.UpdatedAt = time.Now().Unix()
+	err = database.Mgr.Insert(dbUser, constant.UserCollection)
+	if err != nil {
+		log.Println(reqErr)
+		// custom error return todo
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err})
+		return
+	}
+	dbUser.Password = ""
+	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": dbUser})
 }

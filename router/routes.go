@@ -16,4 +16,7 @@ var userRoutes = Routes{
 	Route{"VerifyEmail", http.MethodPost, constant.VerifyEmailRoute, controller.VerifyEmail},
 	Route{"VerifyOtp", http.MethodPost, constant.VerifyOtpRoute, controller.VerifyOtp},
 	Route{"ResendEmail", http.MethodPost, constant.ResendEmailRoute, controller.VerifyEmail},
+
+	// Register User
+	Route{"Register User", http.MethodPost, constant.UserRegisterRoute, controller.RegisterUser},
 }
