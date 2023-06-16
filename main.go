@@ -4,8 +4,11 @@ import (
 	"log"
 	"os"
 
+	"ecommerce/constant"
 	"ecommerce/database"
+	"ecommerce/helper"
 	"ecommerce/router"
+	"ecommerce/types"
 
 	"github.com/joho/godotenv"
 )
@@ -21,6 +24,21 @@ func init() {
 		log.Println("Successfully loaded the config file")
 	}
 	database.ConnectDb()
+
+	// creating system admin
+	hashPassword := helper.GenPassHash("1234")
+	user := types.User{
+		Name:     "Admin",
+		Email:    "admin@gmail.com",
+		Password: hashPassword,
+		UserType: constant.AdminUser,
+	}
+
+	// insertion query to db
+	_, err := database.Mgr.Insert(user, constant.UserCollection)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {

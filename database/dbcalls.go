@@ -10,19 +10,17 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (mgr *manager) Insert(data interface{}, collectionName string) error {
+func (mgr *manager) Insert(data interface{}, collectionName string) (interface{}, error) {
 	log.Println(data)
 	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
 	// insert the bson object using InsertOne()
 	result, err := orgCollection.InsertOne(context.TODO(), data)
 	// check for errors in the insertion
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// display the id of the newly inserted object
-	log.Println(result.InsertedID)
 
-	return nil
+	return result.InsertedID, nil
 }
 
 func (mgr *manager) GetSingleRecordByEmail(email string, collectionName string) *types.Verification {

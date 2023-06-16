@@ -21,6 +21,11 @@ const (
 )
 
 const (
+	NormalUser = "user"
+	AdminUser  = "admin"
+)
+
+const (
 	// time slot for otp validation
 	OtpValidation = 60
 )

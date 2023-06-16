@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"ecommerce/auth"
 	"ecommerce/constant"
 	"ecommerce/database"
 	"ecommerce/helper"
@@ -8,9 +9,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 /*
@@ -156,18 +159,35 @@ func RegisterUser(c *gin.Context) {
 	dbUser.Email = userClient.Email
 	dbUser.Name = userClient.Name
 	dbUser.Phone = userClient.Phone
+	dbUser.UserType = constant.NormalUser
 	// encrypted password genration
 	encryptedPass := helper.GenPassHash(userClient.Password)
 	dbUser.Password = encryptedPass
 	dbUser.CreatedAt = time.Now().Unix()
 	dbUser.UpdatedAt = time.Now().Unix()
-	err = database.Mgr.Insert(dbUser, constant.UserCollection)
+	id, err := database.Mgr.Insert(dbUser, constant.UserCollection)
 	if err != nil {
 		log.Println(reqErr)
 		// custom error return todo
 		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err})
 		return
 	}
+
+	// jwt struct prepare
+	jwtWrapper := auth.JwtWrapper{
+		ScretKey:       os.Getenv("JwtSecrets"),
+		Issuer:         os.Getenv("JwtIssuer"),
+		ExpirationTime: 48,
+	}
+	userId := id.(primitive.ObjectID)
+	// gen token
+	token, err := jwtWrapper.GenrateToken(userId, userClient.Email, dbUser.UserType)
+	if err != nil {
+		log.Println(err)
+		// custom error return todo
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
 	dbUser.Password = ""
-	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": dbUser})
+	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": dbUser, "token": token})
 }

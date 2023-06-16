@@ -24,7 +24,7 @@ type manager struct {
 var Mgr Manager
 
 type Manager interface {
-	Insert(interface{}, string) error
+	Insert(interface{}, string) (interface{}, error)
 	GetSingleRecordByEmail(string, string) *types.Verification
 	UpdateVerification(types.Verification, string) error
 	UpdateEmailVerifiedStatus(types.Verification, string) error
