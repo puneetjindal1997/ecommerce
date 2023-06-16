@@ -19,4 +19,9 @@ var userRoutes = Routes{
 
 	// Register User
 	Route{"Register User", http.MethodPost, constant.UserRegisterRoute, controller.RegisterUser},
+	Route{"Login User", http.MethodPost, constant.UserLoginRoute, controller.UserLogin},
+}
+
+var productRoutes = Routes{
+	Route{"Register Product", http.MethodPost, constant.RegisterProductRoute, controller.RegisterProduct},
 }

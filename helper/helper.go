@@ -41,3 +41,19 @@ func GenPassHash(s string) string {
 	}
 	return string(bytes)
 }
+
+func CheckProductValidation(p types.ProductClient) error {
+	if p.Description == "" {
+		return errors.New("description of product can't be empty")
+	}
+	if p.Name == "" {
+		return errors.New("name of product can't be empty")
+	}
+	if p.ImageUrl == "" {
+		return errors.New("image of product can't be empty")
+	}
+	if p.Price == 0 {
+		return errors.New("price of product can't be 0")
+	}
+	return nil
+}

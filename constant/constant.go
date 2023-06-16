@@ -18,6 +18,10 @@ const (
 
 	// user related routes
 	UserRegisterRoute = "/user-register"
+	UserLoginRoute    = "/login"
+
+	// product routes
+	RegisterProductRoute = "/product-register"
 )
 
 const (
@@ -34,6 +38,7 @@ const (
 const (
 	VerificationsCollection = "verifications"
 	UserCollection          = "user"
+	ProductCollection       = "products"
 )
 
 // messages
@@ -45,4 +50,7 @@ const (
 	OtpExpiredValidationError    = "otp expired"
 	AlreadyVerifiedError         = "already verified"
 	OptAlreadySentError          = "otp already sent to email"
+	NotRegisteredUser            = "you are not register user"
+	PasswordNotMatchedError      = "password doesn't match"
+	NotAuthorizedUserError       = "you are not authorized to do this"
 )

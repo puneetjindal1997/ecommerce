@@ -38,3 +38,8 @@ type Verification struct {
 	Status    bool               `json:"status" bson:"status"`
 	CreatedAt int64              `json:"created_at" bson:"created_at"`
 }
+
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}

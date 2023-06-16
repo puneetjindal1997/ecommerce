@@ -14,6 +14,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"golang.org/x/crypto/bcrypt"
 )
 
 /*
@@ -190,4 +191,43 @@ func RegisterUser(c *gin.Context) {
 	}
 	dbUser.Password = ""
 	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": dbUser, "token": token})
+}
+
+func UserLogin(c *gin.Context) {
+	var loginReq types.Login
+	err := c.BindJSON(&loginReq)
+	if err != nil {
+		log.Println(err)
+		// custom error return todo
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	user := database.Mgr.GetSingleRecordByEmailForUser(loginReq.Email, constant.UserCollection)
+	if user.Email == "" {
+		log.Println(err)
+		// custom error return todo
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.NotRegisteredUser})
+		return
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(loginReq.Password)); err != nil {
+		log.Println(err)
+		// custom error return todo
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.PasswordNotMatchedError})
+		return
+	}
+
+	jwtWrapper := auth.JwtWrapper{
+		ScretKey:       os.Getenv("JwtSecrets"),
+		Issuer:         os.Getenv("JwtIssuer"),
+		ExpirationTime: 48,
+	}
+
+	token, err := jwtWrapper.GenrateToken(user.Id, user.Email, user.UserType)
+	if err != nil {
+		log.Println(err)
+		// custom error return todo
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"token": token})
 }
