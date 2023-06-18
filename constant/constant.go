@@ -22,6 +22,8 @@ const (
 
 	// product routes
 	RegisterProductRoute = "/product-register"
+	ListProductRoute     = "/list-products"
+	SearchProductRoute   = "/search"
 )
 
 const (

@@ -8,6 +8,8 @@ import (
 	"log"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func (mgr *manager) Insert(data interface{}, collectionName string) (interface{}, error) {
@@ -65,4 +67,44 @@ func (mgr *manager) GetSingleRecordByEmailForUser(email, collectionName string) 
 	_ = orgCollection.FindOne(context.TODO(), filter).Decode(&resp)
 	fmt.Println(resp)
 	return resp
+}
+
+func (mgr *manager) GetListProducts(page, limit, offset int, collectionName string) (products []types.Product, count int64, err error) {
+	skip := ((page - 1) * limit)
+	if offset > 0 {
+		skip = offset
+	}
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	findOptions := options.Find()
+	findOptions.SetSkip(int64(skip))
+	findOptions.SetLimit(int64(limit))
+
+	cur, err := orgCollection.Find(context.TODO(), bson.M{}, findOptions)
+	err = cur.All(context.TODO(), &products)
+	itemCount, err := orgCollection.CountDocuments(context.TODO(), bson.M{})
+	return products, itemCount, err
+}
+
+func (mgr *manager) SearchProduct(page, limit, offset int, search string, collectionName string) (products []types.Product, count int64, err error) {
+	skip := ((page - 1) * limit)
+	if offset > 0 {
+		skip = offset
+	}
+
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	findOptions := options.Find()
+	findOptions.SetSkip(int64(skip))
+	findOptions.SetLimit(int64(limit))
+
+	searchFilter := bson.M{}
+	if len(search) >= 3 {
+		searchFilter["$or"] = []bson.M{
+			{"name": primitive.Regex{Pattern: ".*" + search + ".*", Options: "i"}},
+			{"description": primitive.Regex{Pattern: ".*" + search + ".*", Options: "i"}},
+		}
+	}
+	cur, err := orgCollection.Find(context.TODO(), searchFilter, findOptions)
+	cur.All(context.TODO(), &products)
+	count, err = orgCollection.CountDocuments(context.TODO(), searchFilter)
+	return products, count, err
 }

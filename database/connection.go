@@ -29,6 +29,8 @@ type Manager interface {
 	UpdateVerification(types.Verification, string) error
 	UpdateEmailVerifiedStatus(types.Verification, string) error
 	GetSingleRecordByEmailForUser(string, string) types.User
+	GetListProducts(int, int, int, string) ([]types.Product, int64, error)
+	SearchProduct(int, int, int, string, string) ([]types.Product, int64, error)
 }
 
 func ConnectDb() {

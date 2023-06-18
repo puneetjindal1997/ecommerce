@@ -52,3 +52,39 @@ func RegisterProduct(c *gin.Context) {
 	p.ID = id.(primitive.ObjectID)
 	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": p})
 }
+
+func ListProductsController(c *gin.Context) {
+	page := c.DefaultQuery("page", "1")
+	limit := c.DefaultQuery("limit", "10")
+	offset := c.DefaultQuery("offset", "0")
+
+	pageInt, _ := helper.ConverStringIntoInt(page)
+	limitInt, _ := helper.ConverStringIntoInt(limit)
+	offsetInt, _ := helper.ConverStringIntoInt(offset)
+
+	dbResp, count, err := database.Mgr.GetListProducts(pageInt, limitInt, offsetInt, constant.ProductCollection)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": true, "message": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": map[string]interface{}{"products": dbResp, "totalCount": count}})
+}
+
+func SearchProduct(c *gin.Context) {
+	page := c.DefaultQuery("page", "1")
+	limit := c.DefaultQuery("limit", "10")
+	offset := c.DefaultQuery("offset", "0")
+	s := c.Query("search")
+
+	pageInt, _ := helper.ConverStringIntoInt(page)
+	limitInt, _ := helper.ConverStringIntoInt(limit)
+	offsetInt, _ := helper.ConverStringIntoInt(offset)
+
+	products, count, err := database.Mgr.SearchProduct(pageInt, limitInt, offsetInt, s, constant.ProductCollection)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": true, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success", "data": map[string]interface{}{"products": products, "totalCount": count}})
+}

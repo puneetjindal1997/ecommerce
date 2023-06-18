@@ -109,6 +109,34 @@ func (r routes) EcommerceProduct(rg *gin.RouterGroup) {
 	}
 }
 
+/*
+ *	Function for grouping product global routes
+ */
+func (r routes) EcommerceGlobalProductRoutes(rg *gin.RouterGroup) {
+	orderRouteGrouping := rg.Group("/ecommerce-product")
+	orderRouteGrouping.Use(CORSMiddleware())
+	for _, route := range productGlobalRoutes {
+		switch route.Method {
+		case "GET":
+			orderRouteGrouping.GET(route.Pattern, route.HandlerFunc)
+		case "POST":
+			orderRouteGrouping.POST(route.Pattern, route.HandlerFunc)
+		case "OPTIONS":
+			orderRouteGrouping.OPTIONS(route.Pattern, route.HandlerFunc)
+		case "PUT":
+			orderRouteGrouping.PUT(route.Pattern, route.HandlerFunc)
+		case "DELETE":
+			orderRouteGrouping.DELETE(route.Pattern, route.HandlerFunc)
+		default:
+			orderRouteGrouping.GET(route.Pattern, func(c *gin.Context) {
+				c.JSON(200, gin.H{
+					"result": "Specify a valid http method with this route.",
+				})
+			})
+		}
+	}
+}
+
 // append routes with versions
 func ClientRoutes() {
 	r := routes{
@@ -117,6 +145,7 @@ func ClientRoutes() {
 	v1 := r.router.Group(os.Getenv("API_VERSION"))
 	r.EcommerceHealthCheck(v1)
 	r.EcommerceUser(v1)
+	r.EcommerceGlobalProductRoutes(v1)
 	v1.Use(auth.Auth())
 	r.EcommerceProduct(v1)
 
