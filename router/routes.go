@@ -29,4 +29,11 @@ var productGlobalRoutes = Routes{
 
 var productRoutes = Routes{
 	Route{"Register Product", http.MethodPost, constant.RegisterProductRoute, controller.RegisterProduct},
+	Route{"Update Product", http.MethodPut, constant.UpdateProductRoute, controller.UpdateProduct},
+	Route{"Delete Product", http.MethodDelete, constant.DeleteProductRoute, controller.DeleteProduct},
+}
+
+var userAuthRoutes = Routes{
+	Route{"Add to cart", http.MethodPost, constant.AddToCartRoute, controller.AddToCart},
+	Route{"AddAddress", http.MethodPost, constant.AddAddressRoute, controller.AddAddressOfUser},
 }

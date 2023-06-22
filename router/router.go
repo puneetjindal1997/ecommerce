@@ -137,6 +137,34 @@ func (r routes) EcommerceGlobalProductRoutes(rg *gin.RouterGroup) {
 	}
 }
 
+/*
+ *	Function for grouping user authentic routes
+ */
+func (r routes) EcommerceAuthUser(rg *gin.RouterGroup) {
+	orderRouteGrouping := rg.Group("/ecommerce")
+	orderRouteGrouping.Use(CORSMiddleware())
+	for _, route := range userAuthRoutes {
+		switch route.Method {
+		case "GET":
+			orderRouteGrouping.GET(route.Pattern, route.HandlerFunc)
+		case "POST":
+			orderRouteGrouping.POST(route.Pattern, route.HandlerFunc)
+		case "OPTIONS":
+			orderRouteGrouping.OPTIONS(route.Pattern, route.HandlerFunc)
+		case "PUT":
+			orderRouteGrouping.PUT(route.Pattern, route.HandlerFunc)
+		case "DELETE":
+			orderRouteGrouping.DELETE(route.Pattern, route.HandlerFunc)
+		default:
+			orderRouteGrouping.GET(route.Pattern, func(c *gin.Context) {
+				c.JSON(200, gin.H{
+					"result": "Specify a valid http method with this route.",
+				})
+			})
+		}
+	}
+}
+
 // append routes with versions
 func ClientRoutes() {
 	r := routes{
@@ -146,8 +174,10 @@ func ClientRoutes() {
 	r.EcommerceHealthCheck(v1)
 	r.EcommerceUser(v1)
 	r.EcommerceGlobalProductRoutes(v1)
+	// auth
 	v1.Use(auth.Auth())
 	r.EcommerceProduct(v1)
+	r.EcommerceAuthUser(v1)
 
 	if err := r.router.Run(":" + os.Getenv("PORT")); err != nil {
 		log.Println("Failed to run server: %v", err)

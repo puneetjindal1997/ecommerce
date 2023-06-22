@@ -108,3 +108,36 @@ func (mgr *manager) SearchProduct(page, limit, offset int, search string, collec
 	count, err = orgCollection.CountDocuments(context.TODO(), searchFilter)
 	return products, count, err
 }
+
+func (mgr *manager) GetSingleProductById(id primitive.ObjectID, collectionName string) (product types.Product, err error) {
+	filter := bson.D{{"_id", id}}
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+
+	err = orgCollection.FindOne(context.TODO(), filter).Decode(&product)
+	return product, err
+}
+
+func (mgr *manager) UpdateProduct(p types.Product, collectionName string) error {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"_id", p.ID}}
+	update := bson.D{{"$set", p}}
+
+	_, err := orgCollection.UpdateOne(context.TODO(), filter, update)
+	return err
+}
+
+func (mgr *manager) DeleteProduct(id primitive.ObjectID, collectionName string) error {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"_id", id}}
+
+	_, err := orgCollection.DeleteOne(context.TODO(), filter)
+	return err
+}
+
+func (mgr *manager) GetSingleAddress(id primitive.ObjectID, collectionName string) (address types.Address, err error) {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"user_id", id}}
+
+	err = orgCollection.FindOne(context.TODO(), filter).Decode(&address)
+	return address, err
+}

@@ -23,11 +23,18 @@ type User struct {
 
 // address model `addresses` table
 type Address struct {
-	ID       primitive.ObjectID `json:"_id" bson:"_id"`
+	ID       primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
 	Address1 string             `json:"address_1" bson:"address_1"`
 	UserId   primitive.ObjectID `json:"user_id" bson:"user_id"`
 	City     string             `json:"city" bson:"city"`
 	Country  string             `json:"country" bson:"country"`
+}
+
+type AddressClient struct {
+	Address1 string `json:"address_1" bson:"address_1"`
+	UserId   string `json:"user_id" bson:"user_id"`
+	City     string `json:"city" bson:"city"`
+	Country  string `json:"country" bson:"country"`
 }
 
 // Verification model `verification` table

@@ -24,6 +24,10 @@ const (
 	RegisterProductRoute = "/product-register"
 	ListProductRoute     = "/list-products"
 	SearchProductRoute   = "/search"
+	UpdateProductRoute   = "/update-product"
+	DeleteProductRoute   = "/delete-product"
+	AddToCartRoute       = "/cart"
+	AddAddressRoute      = "/address"
 )
 
 const (
@@ -41,6 +45,8 @@ const (
 	VerificationsCollection = "verifications"
 	UserCollection          = "user"
 	ProductCollection       = "products"
+	AddressCollection       = "user_addresses"
+	CartCollection          = "user_cart"
 )
 
 // messages
@@ -55,4 +61,7 @@ const (
 	NotRegisteredUser            = "you are not register user"
 	PasswordNotMatchedError      = "password doesn't match"
 	NotAuthorizedUserError       = "you are not authorized to do this"
+	NoProductAvaliable           = "no product avaliable"
+	UserDoesNotExists            = "user not exists"
+	AddressNotExists             = "address not exists. please add one address"
 )

@@ -10,6 +10,7 @@ import (
 	"ecommerce/constant"
 	"ecommerce/types"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -31,6 +32,10 @@ type Manager interface {
 	GetSingleRecordByEmailForUser(string, string) types.User
 	GetListProducts(int, int, int, string) ([]types.Product, int64, error)
 	SearchProduct(int, int, int, string, string) ([]types.Product, int64, error)
+	GetSingleProductById(primitive.ObjectID, string) (types.Product, error)
+	UpdateProduct(types.Product, string) error
+	DeleteProduct(primitive.ObjectID, string) error
+	GetSingleAddress(primitive.ObjectID, string) (types.Address, error)
 }
 
 func ConnectDb() {

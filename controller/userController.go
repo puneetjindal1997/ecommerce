@@ -231,3 +231,71 @@ func UserLogin(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
+
+func AddToCart(c *gin.Context) {
+	email, ok := c.Get("email")
+	if !ok {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.EmailIsNotVerified})
+		return
+	}
+	userDbResp := database.Mgr.GetSingleRecordByEmail(email.(string), constant.UserCollection)
+	if userDbResp.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.UserDoesNotExists})
+		return
+	}
+	address, err := database.Mgr.GetSingleAddress(userDbResp.ID, constant.AddressCollection)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	if address.Address1 == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.AddressNotExists})
+		return
+	}
+	var cart types.CartClient
+	var cartDb types.Cart
+	err = c.BindJSON(&cart)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+
+	projectId, _ := primitive.ObjectIDFromHex(cart.ProductID)
+	userId, _ := primitive.ObjectIDFromHex(cart.UserID)
+	cartDb.ProductID = projectId
+	cartDb.UserID = userId
+	cartDb.Checkout = false
+	_, err = database.Mgr.Insert(cartDb, constant.CartCollection)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success", "error": false})
+}
+
+func AddAddressOfUser(c *gin.Context) {
+	var addressReq types.AddressClient
+	err := c.BindJSON(&addressReq)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	userId, err := primitive.ObjectIDFromHex(addressReq.UserId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	var addressDb types.Address
+
+	addressDb.Address1 = addressReq.Address1
+	addressDb.UserId = userId
+	addressDb.City = addressReq.City
+	addressDb.Country = addressReq.Country
+
+	_, err = database.Mgr.Insert(addressDb, constant.AddressCollection)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success", "error": false})
+}
