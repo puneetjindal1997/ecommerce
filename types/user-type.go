@@ -10,6 +10,14 @@ type UserClient struct {
 	Password string `json:"password" bson:"password"`
 }
 
+type UserUpdateClient struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+}
+
 type User struct {
 	Id        primitive.ObjectID `json:"_id" bson:"_id,omitempty"`
 	Name      string             `json:"name" bson:"name"`

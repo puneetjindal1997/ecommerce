@@ -36,4 +36,6 @@ var productRoutes = Routes{
 var userAuthRoutes = Routes{
 	Route{"Add to cart", http.MethodPost, constant.AddToCartRoute, controller.AddToCart},
 	Route{"AddAddress", http.MethodPost, constant.AddAddressRoute, controller.AddAddressOfUser},
+	Route{"Get single user", http.MethodGet, constant.GetSingleUserRoute, controller.GetSingleUser},
+	Route{"Update User", http.MethodPut, constant.UpdateUser, controller.UpdateUser},
 }

@@ -36,6 +36,8 @@ type Manager interface {
 	UpdateProduct(types.Product, string) error
 	DeleteProduct(primitive.ObjectID, string) error
 	GetSingleAddress(primitive.ObjectID, string) (types.Address, error)
+	GetSingleUserByUserId(primitive.ObjectID, string) types.User
+	UpdateUser(types.User, string) error
 }
 
 func ConnectDb() {

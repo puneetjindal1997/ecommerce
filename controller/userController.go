@@ -299,3 +299,67 @@ func AddAddressOfUser(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "success", "error": false})
 }
+
+func GetSingleUser(c *gin.Context) {
+	userIdStr := c.Param("id")
+	userId, err := primitive.ObjectIDFromHex(userIdStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	user := database.Mgr.GetSingleUserByUserId(userId, constant.UserCollection)
+	if user.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.UserDoesNotExists})
+		return
+	}
+	user.Password = ""
+	c.JSON(http.StatusOK, gin.H{"message": "success", "error": false, "data": user})
+}
+
+func UpdateUser(c *gin.Context) {
+	var userUpdate types.UserUpdateClient
+	err := c.BindJSON(&userUpdate)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	userId, err := primitive.ObjectIDFromHex(userUpdate.Id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+
+	userResp := database.Mgr.GetSingleUserByUserId(userId, constant.UserCollection)
+	if userResp.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": constant.UserDoesNotExists})
+		return
+	}
+	var user types.User
+	user.Id = userId
+	user.Email = userResp.Email
+	user.Password = userResp.Password
+	user.Phone = userResp.Phone
+	user.UserType = userResp.UserType
+	user.UpdatedAt = time.Now().Unix()
+	user.CreatedAt = userResp.CreatedAt
+
+	if userUpdate.Email != "" {
+		user.Email = userUpdate.Email
+	}
+	if userUpdate.Password != "" {
+		user.Password = helper.GenPassHash(userUpdate.Password)
+	}
+	if userUpdate.Phone != "" {
+		user.Phone = userUpdate.Phone
+	}
+	if userUpdate.Name != "" {
+		user.Name = userUpdate.Name
+	}
+
+	err = database.Mgr.UpdateUser(user, constant.UserCollection)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": true, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "success", "error": false})
+}

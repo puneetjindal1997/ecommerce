@@ -28,6 +28,8 @@ const (
 	DeleteProductRoute   = "/delete-product"
 	AddToCartRoute       = "/cart"
 	AddAddressRoute      = "/address"
+	GetSingleUserRoute   = "/user/:id"
+	UpdateUser           = "/update-user"
 )
 
 const (

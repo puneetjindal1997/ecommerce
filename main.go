@@ -34,10 +34,13 @@ func init() {
 		UserType: constant.AdminUser,
 	}
 
-	// insertion query to db
-	_, err := database.Mgr.Insert(user, constant.UserCollection)
-	if err != nil {
-		log.Fatal(err)
+	u := database.Mgr.GetSingleRecordByEmailForUser(user.Email, constant.UserCollection)
+	if u.Email == "" {
+		// insertion query to db
+		_, err := database.Mgr.Insert(user, constant.UserCollection)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

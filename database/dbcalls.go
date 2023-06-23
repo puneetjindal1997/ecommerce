@@ -141,3 +141,20 @@ func (mgr *manager) GetSingleAddress(id primitive.ObjectID, collectionName strin
 	err = orgCollection.FindOne(context.TODO(), filter).Decode(&address)
 	return address, err
 }
+
+func (mgr *manager) GetSingleUserByUserId(id primitive.ObjectID, collectionName string) (user types.User) {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"_id", id}}
+
+	_ = orgCollection.FindOne(context.TODO(), filter).Decode(&user)
+	return user
+}
+
+func (mgr *manager) UpdateUser(u types.User, collectionName string) error {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"_id", u.Id}}
+	update := bson.D{{"$set", u}}
+
+	_, err := orgCollection.UpdateOne(context.TODO(), filter, update)
+	return err
+}
