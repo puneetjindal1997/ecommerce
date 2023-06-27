@@ -30,6 +30,7 @@ const (
 	AddAddressRoute      = "/address"
 	GetSingleUserRoute   = "/user/:id"
 	UpdateUser           = "/update-user"
+	CheckoutRoute        = "/user/:id"
 )
 
 const (

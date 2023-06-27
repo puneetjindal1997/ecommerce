@@ -185,3 +185,27 @@ func DeleteProduct(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success"})
 }
+
+func CheckoutOrder(c *gin.Context) {
+	cartIdStr := c.Param("id")
+	cartId, err := primitive.ObjectIDFromHex(cartIdStr)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": true, "message": err.Error()})
+		return
+	}
+
+	cart, err := database.Mgr.GetCartObjectById(cartId, constant.CartCollection)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": true, "message": err.Error()})
+		return
+	}
+
+	cart.Checkout = true
+
+	err = database.Mgr.UpdateCartToCheckOut(cart, constant.CartCollection)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"err": true, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"error": false, "message": "success"})
+}

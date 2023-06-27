@@ -38,4 +38,5 @@ var userAuthRoutes = Routes{
 	Route{"AddAddress", http.MethodPost, constant.AddAddressRoute, controller.AddAddressOfUser},
 	Route{"Get single user", http.MethodGet, constant.GetSingleUserRoute, controller.GetSingleUser},
 	Route{"Update User", http.MethodPut, constant.UpdateUser, controller.UpdateUser},
+	Route{"Checkout Order", http.MethodPut, constant.CheckoutRoute, controller.CheckoutOrder},
 }

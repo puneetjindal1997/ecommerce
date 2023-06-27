@@ -150,10 +150,26 @@ func (mgr *manager) GetSingleUserByUserId(id primitive.ObjectID, collectionName 
 	return user
 }
 
+func (mgr *manager) GetCartObjectById(id primitive.ObjectID, collectionName string) (c types.Cart, err error) {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"_id", id}}
+
+	err = orgCollection.FindOne(context.TODO(), filter).Decode(&c)
+	return c, err
+}
+
 func (mgr *manager) UpdateUser(u types.User, collectionName string) error {
 	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
 	filter := bson.D{{"_id", u.Id}}
 	update := bson.D{{"$set", u}}
+
+	_, err := orgCollection.UpdateOne(context.TODO(), filter, update)
+	return err
+}
+func (mgr *manager) UpdateCartToCheckOut(c types.Cart, collectionName string) error {
+	orgCollection := mgr.connection.Database(constant.Database).Collection(collectionName)
+	filter := bson.D{{"_id", c.ID}}
+	update := bson.D{{"$set", c}}
 
 	_, err := orgCollection.UpdateOne(context.TODO(), filter, update)
 	return err

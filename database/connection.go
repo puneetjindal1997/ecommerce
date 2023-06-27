@@ -38,6 +38,8 @@ type Manager interface {
 	GetSingleAddress(primitive.ObjectID, string) (types.Address, error)
 	GetSingleUserByUserId(primitive.ObjectID, string) types.User
 	UpdateUser(types.User, string) error
+	GetCartObjectById(primitive.ObjectID, string) (types.Cart, error)
+	UpdateCartToCheckOut(types.Cart, string) error
 }
 
 func ConnectDb() {
